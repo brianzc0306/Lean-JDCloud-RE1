@@ -14,5 +14,8 @@
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 
 # Add a feed source
-echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
-#echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
+#echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
+echo 'src-git amlogic https://github.com/ophub/luci-app-amlogic' >>feeds.conf.default
+echo 'src-git passwall https://github.com/xiaorouji/passwall' >>feeds.conf.default
+echo 'src-git passwall-packages https://github.com/xiaorouji/passwall-packages' >>feeds.conf.default
+echo 'src-git lucky https://github.com/gdy666/luci-app-lucky/lucky' >>feeds.conf.default
