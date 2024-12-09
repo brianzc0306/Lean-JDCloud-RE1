@@ -17,4 +17,4 @@
 #echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 #echo 'src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall-packages.git;main' >>feeds.conf.default
 #echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall.git;main' >>feeds.conf.default
-echo 'src-git lucky https://github.com/gdy666/luci-app-lucky.git;main' >>feeds.conf.default
+#echo 'src-git lucky https://github.com/gdy666/luci-app-lucky.git;main' >>feeds.conf.default
