@@ -11,7 +11,7 @@
 #
 
 # Modify default IP
-#sed -i 's/192.168.1.1/192.168.0.1/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/192.168.0.1/g' package/base-files/files/bin/config_generate
 
 # Modify default theme
 #sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
@@ -21,4 +21,4 @@
 #git clone https://github.com/ophub/luci-app-amlogic.git package/lean/luci-app-amlogic
 #git clone https://github.com/xiaorouji/openwrt-passwall-packages.git package/lean/passwall-packages
 #git clone https://github.com/xiaorouji/openwrt-passwall.git package/lean/luci-app-passwall
-git clone  https://github.com/gdy666/luci-app-lucky.git package/lucky
+#git clone  https://github.com/gdy666/luci-app-lucky.git package/lucky
