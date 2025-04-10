@@ -19,13 +19,6 @@ on:
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
-  FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: .config
-  DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: diy-part2.sh
-  UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
   CCACHE_DIR: /workdir/openwrt/ccache
   CCACHE_MAXSIZE: 2G
@@ -50,28 +43,16 @@ jobs:
           ${{ runner.os }}-openwrt-
 
     - name: Initialize environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-        sudo -E apt-get -qq update
-        sudo -E apt-get -qq install --no-install-recommends \
-          ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
-          bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext \
-          gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 \
-          libelf-dev libfuse-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev \
-          libmpfr-dev libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev \
-          libssl-dev libtool lrzsz mkisofs msmtp ninja-build p7zip p7zip-full patch \
-          pkgconf python2.7 python3 python3-pyelftools python3-setuptools qemu-utils \
-          rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip \
-          vim wget xmlto xxd zlib1g-dev
-        sudo timedatectl set-timezone "$TZ"
-        sudo mkdir -p /workdir && sudo chown $USER:$GROUPS /workdir
+        sudo apt-get -qq update
+        sudo apt-get -qq install --no-install-recommends \
+          build-essential ccache curl file g++-multilib gcc-multilib git \
+          libncurses5-dev libssl-dev python3 python3-setuptools rsync unzip
 
-    - name: Clone source code
+    - name: Clone source
       working-directory: /workdir
       run: |
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        git clone --depth=1 $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Setup ccache
@@ -79,63 +60,34 @@ jobs:
         ccache -o max_size=$CCACHE_MAXSIZE
         echo "PATH=/usr/lib/ccache:$PATH" >> $GITHUB_ENV
 
-    - name: Customize configuration
-      run: |
-        [ -e $FEEDS_CONF ] && cp $FEEDS_CONF openwrt/feeds.conf.default
-        [ -e files ] && cp -r files openwrt/
-        [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
-        
-        chmod +x $DIY_P1_SH $DIY_P2_SH
-        cd openwrt
-        ../$DIY_P1_SH
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        ../$DIY_P2_SH
-
-    - name: Download packages
-      run: |
-        cd openwrt
-        make defconfig
-        make -j8 download
-        find dl -size -1024c -delete
-
     - name: Build firmware
       run: |
         cd openwrt
-        make -j$(($(nproc) + 1)) || make -j1 || make -j1 V=s
-        echo "DEVICE_NAME=_$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/')" >> $GITHUB_ENV
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        make defconfig
+        make -j$(($(nproc) + 1)) download
+        make -j$(($(nproc) + 1)) || make -j1 V=s
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
-      if: success() && !cancelled()
       with:
-        name: OpenWrt_Artifacts${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: |
-          openwrt/bin/targets/**/*
-          openwrt/.config
-          openwrt/feeds.conf.default
+        name: OpenWrt-Build-$(date +%Y%m%d)
+        path: openwrt/bin/targets
 
     - name: Create release
-      if: env.UPLOAD_RELEASE == 'true' && success() && !cancelled()
-      uses: softprops/action-gh-release@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
+      if: success()
       with:
-        tag_name: "${{ github.run_number }}-$(date +%Y.%m.%d)"
-        body: "Automated OpenWrt build (${{ github.sha }})\nBuild date: $(date)"
+        tag_name: build-$(date +%Y.%m.%d)
         files: openwrt/bin/targets/**/*
 
     - name: Cleanup workflows
       uses: Mattraks/delete-workflow-runs@v2
       with:
-        retain_days: 3
         keep_minimum_runs: 5
 
     - name: Prune releases
-      if: env.UPLOAD_RELEASE == 'true'
-      uses: dev-drprasad/delete-older-releases@v2
+      uses: n1hility/cancel-previous-runs@v2
       with:
-        keep_latest: 5
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
