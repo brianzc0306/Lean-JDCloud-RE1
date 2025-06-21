@@ -6,9 +6,6 @@
 rm -rf package/feeds/packages/lucky
 rm -rf package/feeds/luci/luci-app-lucky
 
-# 克隆最新 lucky 包
-git clone https://github.com/gdy666/luci-app-lucky.git package/lucky
-
 # 创建 uci-defaults 脚本
 mkdir -p package/base-files/files/etc/uci-defaults
 
