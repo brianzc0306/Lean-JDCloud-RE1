@@ -31,5 +31,35 @@ uci set system.@system[0].password="\$PASSWD"
 uci commit system
 EOF
 
-# 设置执行权限
+# 4️⃣ 配置 fstab，挂载 /dev/mmcblk0p27 为 /overlay
+cat > package/base-files/files/etc/config/fstab <<EOF
+config global
+	option anon_swap '0'
+	option auto_swap '1'
+
+config mount
+	option target '/overlay'
+	option device '/dev/mmcblk0p27'
+	option fstype 'ext4'
+	option options 'rw,sync'
+	option enabled '1'
+EOF
+
+# 5️⃣ 创建一个启动脚本，确保开机后挂载 /overlay
+cat > package/base-files/files/etc/uci-defaults/99-set-overlay <<EOF
+#!/bin/sh
+
+# 检查 /dev/mmcblk0p27 是否存在并挂载为 /overlay
+if [ -b /dev/mmcblk0p27 ]; then
+    mount /dev/mmcblk0p27 /overlay
+    echo "Mounted /dev/mmcblk0p27 to /overlay"
+else
+    echo "/dev/mmcblk0p27 not found, overlay mount failed!"
+fi
+EOF
+
+# 6️⃣ 设置执行权限
 chmod +x package/base-files/files/etc/uci-defaults/99-set-*
+
+# 7️⃣ 打印调试信息
+echo "diy-part2.sh executed successfully!"
