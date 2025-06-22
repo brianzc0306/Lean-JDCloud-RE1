@@ -6,7 +6,7 @@
 rm -rf package/feeds/packages/lucky
 rm -rf package/feeds/luci/luci-app-lucky
 
-# 创建 uci-defaults 脚本
+# 创建 uci-defaults 脚本目录
 mkdir -p package/base-files/files/etc/uci-defaults
 
 # 1️⃣ 修改默认 LAN IP
@@ -19,16 +19,18 @@ EOF
 # 2️⃣ 修改主机名 Hostname
 cat > package/base-files/files/etc/uci-defaults/99-set-hostname <<EOF
 #!/bin/sh
-uci set system.@system[0].hostname='JDCloud-ER1'
+uci set system.@system[0].hostname='JDCloud-CS07-NSS'
 uci commit system
 EOF
 
-# 3️⃣ 修改 root 密码（示例密码：12345678）
+# 3️⃣ 修改 root 密码
 cat > package/base-files/files/etc/uci-defaults/99-set-root-password <<EOF
 #!/bin/sh
-PASSWD=\$(openssl passwd -1 '*@qq031453')
-uci set system.@system[0].password="\$PASSWD"
-uci commit system
+
+# 设置 root 密码为 *@qq031453
+echo -e "*@qq031453\n*@qq031453" | passwd root
+
+echo "Root password set to *@qq031453 successfully!"
 EOF
 
 # 4️⃣ 配置 fstab，挂载 /dev/mmcblk0p27 为 /overlay
@@ -43,11 +45,26 @@ config mount
 	option fstype 'ext4'
 	option options 'rw,sync'
 	option enabled '1'
+
+config mount
+	option target '/mnt/sd'
+	option device '/dev/mmcblk0p28'
+	option fstype 'ext4'
+	option options 'rw,sync'
+	option enabled '0'
 EOF
 
 # 5️⃣ 创建一个启动脚本，确保开机后挂载 /overlay
 cat > package/base-files/files/etc/uci-defaults/99-set-overlay <<EOF
 #!/bin/sh
+
+# 卸载现有的 /overlay
+if mountpoint -q /overlay; then
+    umount /overlay
+    echo "/overlay unmounted"
+else
+    echo "/overlay is not mounted"
+fi
 
 # 检查 /dev/mmcblk0p27 是否存在并挂载为 /overlay
 if [ -b /dev/mmcblk0p27 ]; then
