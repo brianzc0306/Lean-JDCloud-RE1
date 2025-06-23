@@ -38,7 +38,7 @@ uci set system.@system[0].hostname='JDCloud-ER1'
 uci commit system
 EOF
 
-# 8. 修改 root 密码为 *@qq031453
+# 8. 修改 root 密码
 cat > package/base-files/files/etc/uci-defaults/99-set-root-password <<EOF
 #!/bin/sh
 echo -e "*@qq031453\n*@qq031453" | passwd root
