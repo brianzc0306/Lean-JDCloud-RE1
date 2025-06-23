@@ -97,5 +97,3 @@ chmod +x package/base-files/files/etc/uci-defaults/99-set-*
 
 # 13. 完成提示
 echo "✅ diy-part2.sh 执行完成！"
-
-你用这个版本替换之前的脚本就可以避免写 fstab 文件时目录不存在的问题。
