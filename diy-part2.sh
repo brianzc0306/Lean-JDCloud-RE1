@@ -21,9 +21,11 @@ rm -rf package/nikki
 git clone -b main https://github.com/nikkinikki-org/OpenWrt-nikki.git package/nikki
 
 # -------------------------------
-# 5. 创建 uci-defaults 脚本目录
+# 5. 创建必要目录，防止写入文件失败
 mkdir -p package/base-files/files/etc/uci-defaults
+mkdir -p package/base-files/files/etc/config
 
+# -------------------------------
 # 6. 修改默认 LAN IP
 cat > package/base-files/files/etc/uci-defaults/99-set-lan-ip <<EOF
 #!/bin/sh
@@ -34,17 +36,18 @@ EOF
 # 7. 修改主机名
 cat > package/base-files/files/etc/uci-defaults/99-set-hostname <<EOF
 #!/bin/sh
-uci set system.@system[0].hostname='JDCloud-CS07-NSS'
+uci set system.@system[0].hostname='JDCloud-ER1'
 uci commit system
 EOF
 
-# 8. 修改 root 密码为 *@qq031453
+# 8. 修改 root 密码
 cat > package/base-files/files/etc/uci-defaults/99-set-root-password <<EOF
 #!/bin/sh
 echo -e "*@qq031453\n*@qq031453" | passwd root
 echo "Root password set to *@qq031453 successfully!"
 EOF
 
+# -------------------------------
 # 9. 配置 fstab 挂载 /dev/mmcblk0p27 为 /overlay
 cat > package/base-files/files/etc/config/fstab <<EOF
 config global
@@ -66,6 +69,7 @@ config mount
 	option enabled '0'
 EOF
 
+# -------------------------------
 # 10. 创建启动脚本，确保开机挂载 /overlay
 cat > package/base-files/files/etc/uci-defaults/99-set-overlay <<EOF
 #!/bin/sh
@@ -84,8 +88,10 @@ else
 fi
 EOF
 
+# -------------------------------
 # 11. 设置 uci-defaults 脚本执行权限
 chmod +x package/base-files/files/etc/uci-defaults/99-set-*
 
+# -------------------------------
 # 12. 完成提示
 echo "✅ diy-part2.sh 执行完成！"
