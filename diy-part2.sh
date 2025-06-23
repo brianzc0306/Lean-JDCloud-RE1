@@ -48,7 +48,7 @@ EOF
 # 8. 修改主机名
 cat > package/base-files/files/etc/uci-defaults/99-set-hostname <<EOF
 #!/bin/sh
-uci set system.@system[0].hostname='JDCloud-CS07-NSS'
+uci set system.@system[0].hostname='JDCloud-ER1'
 uci commit system
 EOF
 
