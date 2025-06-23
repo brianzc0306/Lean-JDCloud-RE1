@@ -1,7 +1,7 @@
 #!/bin/bash
 # OpenWrt DIY script part 2 (After Update feeds)
 # 完整版 by brianzc0306
-# 功能：拉取 lucky/nikki，调整菜单顺序，修改默认配置，配置 overlay
+# 功能：拉取 lucky/nikki，修改默认配置，配置 overlay
 
 # -------------------------------
 # 1. 删除旧的 lucky 包，避免冲突
