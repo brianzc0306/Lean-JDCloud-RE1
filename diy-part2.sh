@@ -25,8 +25,11 @@ git clone -b main https://github.com/nikkinikki-org/OpenWrt-nikki.git package/ni
 rm -rf package/feeds/packages/miniupnpd
 rm -rf package/miniupnpd
 
-# 6. 拉取支持 nftables 的 miniupnpd 版本
-git clone https://github.com/openwrt/packages/tree/master/net/miniupnpd package/miniupnpd
+# 6. 修正：克隆支持 nftables 的 miniupnpd 版本
+echo "正在克隆 miniupnpd (nftables 版本)..."
+git clone --depth=1 https://github.com/openwrt/packages.git package/miniupnpd-temp
+mv package/miniupnpd-temp/net/miniupnpd package/
+rm -rf package/miniupnpd-temp
 
 # -------------------------------
 # 7. 创建必要目录，防止写入文件失败
