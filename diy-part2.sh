@@ -22,8 +22,8 @@ git clone -b main https://github.com/nikkinikki-org/OpenWrt-nikki.git package/ni
 
 # -------------------------------
 # 5. 删除旧的 miniupnpd 包，避免冲突
-rm -rf package/feeds/packages/miniupnpd
-rm -rf package/miniupnpd
+#rm -rf package/feeds/packages/miniupnpd
+#rm -rf package/miniupnpd
 
 # 6. 修正：克隆支持 nftables 的 miniupnpd 版本
 #echo "正在克隆 miniupnpd (nftables 版本)..."
